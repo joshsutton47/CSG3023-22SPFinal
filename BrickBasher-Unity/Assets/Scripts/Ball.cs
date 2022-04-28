@@ -12,24 +12,33 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEngine.UI;
 
 public class Ball : MonoBehaviour
 {
+    #region
+    /*** Variables ***/
     [Header("General Settings")]
-
-
+    public GameObject paddle;
+    private int score;
+    public Text scoreTxt;
     [Header("Ball Settings")]
-   
+    public int numBalls;
+    public Text ballTxt; 
+    public Vector3 initForce;
+    public float speed;
+    private Rigidbody rb;
+    private AudioSource audioSource;
+    private bool isInPlay;
+    #endregion
 
-
- 
 
 
     //Awake is called when the game loads (before Start).  Awake only once during the lifetime of the script instance.
     void Awake()
     {
-
+        rb = this.GetComponent<Rigidbody>();
+        audioSource = this.GetComponent<AudioSource>();
     }//end Awake()
 
 
@@ -44,16 +53,36 @@ public class Ball : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        
+        scoreTxt.text = "Score: " + score;
+        ballTxt.text = "Balls: " + numBalls;
+        if (!isInPlay)
+        {
+            Vector3 curPos = this.transform.position;
+            curPos.x = paddle.transform.position.x;
+            this.transform.position = curPos;
+        }
+        if(Input.GetKeyDown(KeyCode.Space) && !isInPlay)
+        {
+            isInPlay = true;
+            Move();
+        }
     }//end Update()
 
 
     private void LateUpdate()
     {
-
+        if (isInPlay)
+        {
+            Vector3 normalizedVel = rb.velocity.normalized;
+            rb.velocity = (speed * normalizedVel);
+        }
 
     }//end LateUpdate()
 
+    private void Move()
+    {
+        rb.AddForce(initForce);
+    }
 
     void SetStartingPos()
     {
@@ -67,7 +96,28 @@ public class Ball : MonoBehaviour
         transform.position = pos;//set starting position of the ball 
     }//end SetStartingPos()
 
+    private void OnCollisionEnter(Collision other)
+    {
+        audioSource.Play();
+        GameObject otherObj = other.gameObject;
+        if(otherObj.tag == "Brick")
+        {
+            score += 100;
+            Destroy(otherObj);
+        }
+    }
 
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.tag == "OutBounds")
+        {
+            numBalls--;
+            if (numBalls > 0)
+            {
+                Invoke("SetStartingPos", 2.0f);
+            }
+        }
+    }
 
 
 

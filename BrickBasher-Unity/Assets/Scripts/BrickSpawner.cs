@@ -34,9 +34,9 @@ public class BrickSpawner : MonoBehaviour
         {
             for(int x=0; x < 7; x++)
             {
-                Vector3 pos = new Vector3(x * brickPadding.x , y * brickPadding.y, 0); 
-              
-                brickGo = Instantiate.brickPrefab; 
+                Vector3 pos = new Vector3(x * brickPadding.x , y * brickPadding.y, 0);
+
+                GameObject brickGo = GameObject.Instantiate(brickPrefab); // Initializes the brickGo variable as a type of GameObject
               
                 brickGo.transform.parent = transform; 
                 brickGo.transform.localPosition = pos; 
